@@ -8,10 +8,9 @@ const app = express()
 
 
 
-
-
-
-
+app.get("*", (req, res) => {
+    res.send("<h1>Welcome to OLX Server</h1>");
+});
 
 
 
