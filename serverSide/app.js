@@ -6,6 +6,7 @@ const dbHelper = require("./dbHelper/dbHelper.js")
 
 const app = express()
 
+app.use(cors())
 
 
 app.get("*", (req, res) => {
@@ -19,7 +20,6 @@ app.get("*", (req, res) => {
 
 
 
-app.use(cors())
 app.listen((port), (err) => {
     if (err) {
         console.log("server is not in listining mood!!")
