@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {View, Image} from 'react-native';
+import React, { useState } from 'react';
+import { View, Image } from 'react-native';
 import style from '../../../Login/style';
 
 const LoginImgOne = () => {
@@ -20,4 +20,4 @@ const LoginImgTwo = () => {
   );
 };
 
-export {LoginImgOne, LoginImgTwo};
+export { LoginImgOne, LoginImgTwo };
