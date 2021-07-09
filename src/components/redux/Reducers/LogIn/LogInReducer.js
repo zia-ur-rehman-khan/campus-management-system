@@ -1,12 +1,13 @@
-import {USER_LOGIN} from '../../Actions/LogIn/LogInType';
+import { USER_LOGIN } from '../../Actions/LogIn/LogInType';
 
 const initialState = {
-  LoginData: [],
+  LoginData: false,
 };
 
 const LogInReducer = (state = initialState, action) => {
   switch (action.type) {
     case USER_LOGIN:
+      console.log(action.myLog, "myLog")
       return {
         LoginData: action.myLog,
       };

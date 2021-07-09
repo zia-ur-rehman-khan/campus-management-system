@@ -1,9 +1,9 @@
-import React, {useState} from 'react';
-import {View, Text, TouchableOpacity, ActivityIndicator} from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import style from '../../../Login/style';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-const LoginButton = ({isLoading, Submit, disabled}) => {
+const LoginButton = ({ isLoading, Submit, disabled }) => {
   const [BtnText] = useState('Log In');
   return (
     <TouchableOpacity onPress={Submit} disabled={disabled}>

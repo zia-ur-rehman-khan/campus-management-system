@@ -1,19 +1,19 @@
-import React, {useState} from 'react';
-import {View, Picker, StyleSheet} from 'react-native';
+import React, { useState } from 'react';
+import { View, Picker, StyleSheet } from 'react-native';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from '../../../responsive/responsive';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
-const DropDown = ({selectedValue, setSelectedValue}) => {
+const DropDown = ({ userRole, setUserRole }) => {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
         <AntDesign name="wifi" size={17} color="green" style={styles.icon} />
         <Picker
-          selectedValue={selectedValue}
-          onValueChange={(itemValue, itemIndex) => setSelectedValue(itemValue)}>
+          selectedValue={userRole}
+          onValueChange={(itemValue, itemIndex) => setUserRole(itemValue)}>
           <Picker.Item label="Company" value="Company" color="green" />
           <Picker.Item label="Student" value="Student" color="green" />
         </Picker>

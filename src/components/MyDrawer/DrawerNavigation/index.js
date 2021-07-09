@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import JobsScreen from '../Jobs/index';
-import {createDrawerNavigator} from '@react-navigation/drawer';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import ProfileScreen from '../Profile/index';
 import AddJobs from '../AddJobs/index';
 import CompanyProfileScreen from '../../MyDrawer/CompanyProfile/index';
@@ -8,31 +8,57 @@ import Foundation from 'react-native-vector-icons/Foundation';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import database from '@react-native-firebase/database';
-// import {useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 // import {userLogin} from '../../redux/Actions/LogIn/LogInAction';
-import {firebase} from '@react-native-firebase/auth';
+import { firebase } from '@react-native-firebase/auth';
 import CustomContent from './CustomContent';
+import { Text } from 'react-native';
+import axios from 'axios';
+import appSetting from '../../../../appSetting/appSetting';
 
 const Drawer = createDrawerNavigator();
 
-const DrawerNav = ({navigation}) => {
-  const [userRoll, setUserRoll] = useState('');
-  // const dispatch = useDispatch();
-  // const myLogin = useSelector((state) => state.myLog.LoginData);
+const DrawerNav = ({ navigation }) => {
+  const myLogin = useSelector((state) => state.myLog.LoginData);
+  const userRoll = myLogin.userRole
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // const dispatch = useDispatch();
+  console.log("user is here in drawer")
   useEffect(() => {
+    console.log(myLogin.userRole === 'Student', "my login")
+    // setUserRoll(myLogin.userRole)
     // const roll = myLogin;
     // setUserRoll(roll.selectedValue);
-    const uid = firebase.auth()?.currentUser?.uid;
-    database()
-      .ref(`NewUsers/${uid}`)
-      .on('value', (snapshot) => {
-        const user = snapshot ? snapshot.val() : [];
-        const newUser = snapshot ? user?.selectedValue : '';
-        console.log(uid);
-        setUserRoll(snapshot.val()?.selectedValue);
-      });
-  }, []);
+    // const uid = firebase.auth()?.currentUser?.uid;
+    // database()
+    //   .ref(`NewUsers/${uid}`)
+    //   .on('value', (snapshot) => {
+    //     const user = snapshot ? snapshot.val() : [];
+    //     const newUser = snapshot ? user?.selectedValue : '';
+    //     console.log(uid);
+    //     setUserRoll(snapshot.val()?.selectedValue);
+    //   });
+  }, [myLogin]);
 
   return (
     <Drawer.Navigator

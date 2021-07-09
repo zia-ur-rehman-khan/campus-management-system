@@ -3,8 +3,8 @@ import SignIn from '../Login';
 import SignUp from '../SignUp';
 import DrawerNav from '../MyDrawer/DrawerNavigation/index';
 import JobsDetails from '../JobsDetails/index';
-import {NavigationContainer} from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
 const Stack = createStackNavigator();
 

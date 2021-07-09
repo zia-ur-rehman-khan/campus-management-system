@@ -1,15 +1,15 @@
 import React from 'react';
-import {Text, StyleSheet, View} from 'react-native';
-import {widthPercentageToDP as wp} from '../../../responsive/responsive';
+import { Text, StyleSheet, View } from 'react-native';
+import { widthPercentageToDP as wp } from '../../../responsive/responsive';
 import MenuIcon from '../../MenuIcon/index';
 
-const ProfileHeader = ({navigation}) => {
+const ProfileHeader = ({ navigation }) => {
   return (
     <View style={style.container}>
       <View style={style.txtContainer}>
         <Text style={style.mainTxt}>Editing Your Profile</Text>
       </View>
-      <View>
+      <View style={style.menuIcon}>
         <MenuIcon navigation={navigation} />
       </View>
     </View>
@@ -23,6 +23,7 @@ const style = StyleSheet.create({
     width: '100%',
     // height: '7%',
     backgroundColor: 'green',
+    position: 'relative',
   },
   txtContainer: {
     justifyContent: 'center',
@@ -33,4 +34,9 @@ const style = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
+  menuIcon: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+  }
 });

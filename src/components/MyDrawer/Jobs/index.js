@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -9,17 +9,17 @@ import {
 import style from './style';
 import JobsHeader from '../../ScreensMaterials/Headerss/JobsHeader/JobsHeader';
 import JobImg from '../../ScreensMaterials/JobsMaterial/JobsImage/index';
-import {ScrollView, TouchableOpacity} from 'react-native-gesture-handler';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview';
+import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from '../../responsive/responsive';
-import {firebase} from '@react-native-firebase/auth';
+import { firebase } from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import DeleteButton from '../../ScreensMaterials/JobsDetailsMaterial/DetailsButton/DeleteButton';
 
-const JobsScreen = ({navigation}) => {
+const JobsScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isStudentLoading, setIsStudentLoading] = useState(false);
   const [myJobs, setMyJobs] = useState([]);
@@ -78,7 +78,7 @@ const JobsScreen = ({navigation}) => {
           let snapVal = snapshot.val();
           let mySnaap = snapVal ? Object.values(snapshot.val()) : [];
           let pushKeys = snapVal ? Object.keys(snapshot.val()) : [];
-          mySnaap = mySnaap.map((val, i) => ({...val, pushKey: pushKeys[i]}));
+          mySnaap = mySnaap.map((val, i) => ({ ...val, pushKey: pushKeys[i] }));
           setMyJobs(mySnaap);
           setIsLoading(false);
         });
@@ -205,7 +205,7 @@ const JobsScreen = ({navigation}) => {
               []
             )}
 
-            <View style={{paddingBottom: wp('4')}} />
+            <View style={{ paddingBottom: wp('4') }} />
           </ScrollView>
         </View>
         <View style={style.bottomTxtContainer}>

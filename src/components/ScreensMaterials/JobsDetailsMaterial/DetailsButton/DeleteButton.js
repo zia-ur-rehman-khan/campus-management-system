@@ -1,9 +1,9 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, TouchableOpacity} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 import style from '../../../JobsDetails/style';
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 import database from '@react-native-firebase/database';
-import {firebase} from '@react-native-firebase/auth';
+import { firebase } from '@react-native-firebase/auth';
 
 const DeleteButton = (props) => {
   const [BtnTxt] = useState('Delete');
@@ -12,11 +12,11 @@ const DeleteButton = (props) => {
 
   useEffect(() => {
     const rull = myLogin;
-    setRoll(rull.selectedValue);
+    setRoll(rull.userRole);
   });
 
   const deleteJob = () => {
-    const {applyJob} = props;
+    const { applyJob } = props;
     const uid = firebase.auth().currentUser?.uid;
     database().ref(`/addJobs/${uid}/${applyJob.pushKey}`).remove();
     alert('Job deleted... !');

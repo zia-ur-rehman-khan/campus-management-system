@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   TextInput,
@@ -11,24 +11,27 @@ import {
 import style from './style';
 import ProfileHeader from '../../ScreensMaterials/Headerss/ProfileHeader/index';
 import ProfileImage from '../../ScreensMaterials/ProfileMaterial/ProfileImage/index';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
 import {
   ProfileButton,
   ProfileCv,
 } from '../../ScreensMaterials/ProfileMaterial/ProfileButton/index';
 import DatePicker from 'react-native-date-picker';
-import {TouchableOpacity} from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 // import {yourProfile} from '../../redux/Actions/YourProfile/YourProfileAction';
 import database from '@react-native-firebase/database';
-import {firebase} from '@react-native-firebase/auth';
+import { firebase } from '@react-native-firebase/auth';
 import storage from '@react-native-firebase/storage';
 import ImageModal from 'react-native-image-modal';
 import RNFetchBlob from 'rn-fetch-blob';
+import axios from 'axios';
+import appSetting from '../../../../appSetting/appSetting';
+import { useDispatch, useSelector } from 'react-redux';
 // import {useDispatch} from 'react-redux';
 
-const ProfileScreen = ({navigation}) => {
+const ProfileScreen = ({ navigation }) => {
   // const dispatch = useDispatch();
   const [DateOb] = useState('Your Date Of Birth :');
   const [PickPics, setPickPics] = useState('');
@@ -54,26 +57,27 @@ const ProfileScreen = ({navigation}) => {
     BackHandler.exitApp();
     return true;
   };
+  let studentid = useSelector((state => state.myLog.LoginData.userid))
 
   useEffect(() => {
     setIsMyLoading(true);
-    const uid = firebase.auth().currentUser?.uid;
-    database()
-      .ref(`/StudentProfileData/${uid}`)
-      .on('value', (snapshot) => {
-        let newSnap = snapshot.val();
-        let myCurrPic = newSnap ? newSnap.downloadURL : '';
-        let myCurrCvPic = newSnap ? newSnap.myDownloadURL : '';
-        let myName = newSnap ? newSnap.name : '';
-        let myDatOfBirth = newSnap ? newSnap.date : '';
-        let myEducation = newSnap ? newSnap.education : '';
-        setName(myName);
-        setEducation(myEducation);
-        setShowPic(myCurrPic);
-        setCvPic(myCurrCvPic);
-        myDatOfBirth ? setDate(new Date(myDatOfBirth)) : [];
-        setIsMyLoading(false);
-      });
+    // const uid = firebase.auth().currentUser?.uid;
+    // database()
+    //   .ref(`/StudentProfileData/${uid}`)
+    //   .on('value', (snapshot) => {
+    //     let newSnap = snapshot.val();
+    //     let myCurrPic = newSnap ? newSnap.downloadURL : '';
+    //     let myCurrCvPic = newSnap ? newSnap.myDownloadURL : '';
+    //     let myName = newSnap ? newSnap.name : '';
+    //     let myDatOfBirth = newSnap ? newSnap.date : '';
+    //     let myEducation = newSnap ? newSnap.education : '';
+    //     setName(myName);
+    //     setEducation(myEducation);
+    //     setShowPic(myCurrPic);
+    //     setCvPic(myCurrCvPic);
+    //     myDatOfBirth ? setDate(new Date(myDatOfBirth)) : [];
+    setIsMyLoading(false);
+    // });
     BackHandler.addEventListener('hardwareBackPress', disableBackButton);
   }, []);
 
@@ -144,28 +148,45 @@ const ProfileScreen = ({navigation}) => {
 
   const handleSubmit = async () => {
     if (name && date && education) {
-      try {
-        setIsLoading(true);
-        const uid = firebase.auth().currentUser?.uid;
-        let currDate = date ? date?.toISOString()?.split('t')[0] : [];
-        await database().ref(`/StudentProfileData/${uid}`).update({
-          downloadURL: profilePic,
-          name,
-          education,
-          myDownloadURL: cvPicture,
-          date: currDate,
-        });
-        setIsLoading(false);
-        Alert.alert('Your Data Is Now SaveD!');
-      } catch (err) {
-        console.log(err);
-        setIsLoading(false);
+      // try {
+      //   setIsLoading(true);
+      //   const uid = firebase.auth().currentUser?.uid;
+      //   let currDate = date ? date?.toISOString()?.split('t')[0] : [];
+      //   await database().ref(`/StudentProfileData/${uid}`).update({
+      //     downloadURL: profilePic,
+      //     name,
+      //     education,
+      //     myDownloadURL: cvPicture,
+      //     date: currDate,
+      //   });
+      //   
+      // } catch (err) {
+      //   console.log(err);
+      //   setIsLoading(false);
+      // }
+      console.log(studentid)
+      let studentDetails = {
+        _id: studentid,
+        studentDetails: {
+          studentName: name,
+          dateOfBirth: date,
+          qualification: education
+        }
       }
+      axios.post(`${appSetting.serverBaseUrl}/users/add-student-detailes`, studentDetails)
+        .then(savedDetails => {
+          console.log('saved detailes', savedDetails)
+          setIsLoading(false);
+          Alert.alert('Your Data Is Now SaveD!');
+
+        }).catch(err => {
+          console.log(err);
+          setIsLoading(false);
+        })
     } else {
       setShowErr('PleasE Required All Fields');
     }
   };
-
   return (
     <>
       {isMyLoading ? (

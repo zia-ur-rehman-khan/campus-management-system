@@ -1,12 +1,12 @@
-import React, {useState, useEffect} from 'react';
-import {View, ActivityIndicator, BackHandler} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, ActivityIndicator, BackHandler } from 'react-native';
 import style from './style';
 import CompanyProfileHeader from '../../ScreensMaterials/Headerss/CompanyProfileHeader/CompanyHeader';
 import {
   CompanyImg,
   CompanyCoverImg,
 } from '../../ScreensMaterials/CompanyProfileMaterial/CompanyProfileImage/index';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
 import {
   EditButton,
   SaveButton,
@@ -17,11 +17,13 @@ import {
   CompanyDescriptionText,
 } from '../../ScreensMaterials/CompanyProfileMaterial/CompanyProfileCardTeXt/index';
 import database from '@react-native-firebase/database';
-import {useSelector, useDispatch} from 'react-redux';
-import {companyProfile} from '../../redux/Actions/CompanyProfile/CompanyProfileAction';
-import {firebase} from '@react-native-firebase/auth';
+import { useSelector, useDispatch } from 'react-redux';
+import { companyProfile } from '../../redux/Actions/CompanyProfile/CompanyProfileAction';
+import { firebase } from '@react-native-firebase/auth';
+import axios from 'axios';
+import appSetting from '../../../../appSetting/appSetting';
 
-const CompanyProfileScreen = ({navigation}) => {
+const CompanyProfileScreen = ({ navigation }) => {
   const currentText = useSelector((state) => state.com.CompanyData);
   const [isLoading, setIsLoading] = useState(false);
   const [myTxt, setMyTxt] = useState();
@@ -30,6 +32,12 @@ const CompanyProfileScreen = ({navigation}) => {
   const [abcd, setAbcd] = useState();
   const [etc, setEtc] = useState();
   const dispatch = useDispatch();
+
+  console.log(useSelector(state => state), "state")
+
+  let companyid = useSelector((state => state.myLog.LoginData))
+  console.log(companyid, "comapny iddd")
+
 
   const editBtn = () => {
     setEdit();
@@ -40,16 +48,36 @@ const CompanyProfileScreen = ({navigation}) => {
   };
 
   const saveBtn = () => {
-    const uid = firebase.auth().currentUser?.uid;
-    database().ref(`/CompanyData/${uid}`).push({
-      abcd,
-      etc,
-    });
-    dispatch(companyProfile({abcd, etc}));
-    setEdit(true);
-    setMyTxt(abcd);
-    setMyDcTxt(etc);
-  };
+    // const uid = firebase.auth().currentUser?.uid;
+    // database().ref(`/CompanyData/${uid}`).push({
+    //   abcd,
+    //   etc,
+    // });
+
+
+    let companyDetails = {
+      _id: companyid,
+      companyDetails: {
+        companyName: abcd,
+        companyDescription: etc,
+      }
+    }
+
+    axios.post(`${appSetting.serverBaseUrl}/users/add-company-detailes`, companyDetails)
+      .then(savedDetails => {
+
+        dispatch(companyProfile({ abcd, etc }));
+        setEdit(true);
+        setMyTxt(abcd);
+        setMyDcTxt(etc);
+
+
+      })
+      .catch(err => {
+        console.log(err);
+      })
+
+  }
 
   const disableBackButton = () => {
     BackHandler.exitApp();
@@ -80,7 +108,7 @@ const CompanyProfileScreen = ({navigation}) => {
         <CompanyProfileHeader navigation={navigation} />
         {isLoading ? (
           <View
-            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <ActivityIndicator size={40} color="green" />
           </View>
         ) : (
