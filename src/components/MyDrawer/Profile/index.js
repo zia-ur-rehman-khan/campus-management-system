@@ -29,10 +29,11 @@ import RNFetchBlob from 'rn-fetch-blob';
 import axios from 'axios';
 import appSetting from '../../../../appSetting/appSetting';
 import { useDispatch, useSelector } from 'react-redux';
-// import {useDispatch} from 'react-redux';
+import { userLogin } from '../../redux/Actions/LogIn/LogInAction';
+
 
 const ProfileScreen = ({ navigation }) => {
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const [DateOb] = useState('Your Date Of Birth :');
   const [PickPics, setPickPics] = useState('');
   const [name, setName] = useState('');
@@ -57,7 +58,8 @@ const ProfileScreen = ({ navigation }) => {
     BackHandler.exitApp();
     return true;
   };
-  let studentid = useSelector((state => state.myLog.LoginData.userid))
+  let studentDet = useSelector((state) => state.myLog.LoginData);
+  console.log(studentDet, '>>>>>>>>>>>');
 
   useEffect(() => {
     setIsMyLoading(true);
@@ -71,11 +73,14 @@ const ProfileScreen = ({ navigation }) => {
     //     let myName = newSnap ? newSnap.name : '';
     //     let myDatOfBirth = newSnap ? newSnap.date : '';
     //     let myEducation = newSnap ? newSnap.education : '';
-    //     setName(myName);
-    //     setEducation(myEducation);
+    setName(studentDet?.details?.name);
+    setEducation(studentDet?.details?.qualification);
+
     //     setShowPic(myCurrPic);
     //     setCvPic(myCurrCvPic);
-    //     myDatOfBirth ? setDate(new Date(myDatOfBirth)) : [];
+    // myDatOfBirth ? setDate(new Date(myDatOfBirth)) : [];
+    studentDet?.details?.dateOfBirth && setDate(new Date(studentDet?.details?.dateOfBirth))
+
     setIsMyLoading(false);
     // });
     BackHandler.addEventListener('hardwareBackPress', disableBackButton);
@@ -159,30 +164,48 @@ const ProfileScreen = ({ navigation }) => {
       //     myDownloadURL: cvPicture,
       //     date: currDate,
       //   });
-      //   
+      //
       // } catch (err) {
       //   console.log(err);
       //   setIsLoading(false);
       // }
-      console.log(studentid)
-      let studentDetails = {
-        _id: studentid,
+      console.log(studentDet.userid);
+      let studentDetailes = {
+        _id: studentDet.userid,
         studentDetails: {
           studentName: name,
           dateOfBirth: date,
-          qualification: education
-        }
-      }
-      axios.post(`${appSetting.serverBaseUrl}/users/add-student-detailes`, studentDetails)
-        .then(savedDetails => {
-          console.log('saved detailes', savedDetails)
+          qualification: education,
+        },
+      };
+      axios
+        .post(
+          `${appSetting.serverBaseUrl}/users/add-student-detailes`,
+          studentDetailes,
+        )
+        .then((savedDetails) => {
+          dispatch(
+            userLogin({
+              // email: res.data.user.email,
+              // password: res.data.user.password,
+              // userRole: res?.data?.user?.userRole,
+              // userid: res.data.user._id,
+              ...studentDet,
+              details: {
+                name: savedDetails?.data?.studentDetails?.studentName,
+                dateOfBirth: savedDetails?.data?.studentDetails?.dateOfBirth,
+                qualification: savedDetails?.data?.studentDetails?.qualification
+              }
+            }),
+          );
+          console.log('saved detailes', savedDetails);
           setIsLoading(false);
           Alert.alert('Your Data Is Now SaveD!');
-
-        }).catch(err => {
+        })
+        .catch((err) => {
           console.log(err);
           setIsLoading(false);
-        })
+        });
     } else {
       setShowErr('PleasE Required All Fields');
     }

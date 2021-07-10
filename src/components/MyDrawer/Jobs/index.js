@@ -18,6 +18,9 @@ import {
 import { firebase } from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import DeleteButton from '../../ScreensMaterials/JobsDetailsMaterial/DetailsButton/DeleteButton';
+import { useSelector } from 'react-redux';
+import appSetting from '../../../../appSetting/appSetting';
+import axios from 'axios';
 
 const JobsScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -31,64 +34,80 @@ const JobsScreen = ({ navigation }) => {
     return true;
   };
 
+  let studentDet = useSelector((state) => state.myLog.LoginData);
+
   useEffect(() => {
-    const uid = firebase.auth().currentUser?.uid;
-    console.log(uid);
-    database()
-      .ref(`NewUsers/${uid}`)
-      .on('value', (snapshot) => {
-        let user = snapshot ? snapshot.val() : [];
-        let newUser = user ? user?.selectedValue : '';
-        setUserRoll(newUser);
-      });
+    setUserRoll(studentDet.userRole)
+    //   const uid = firebase.auth().currentUser?.uid;
+    //   console.log(uid);
+    //   database()
+    //     .ref(`NewUsers/${uid}`)
+    //     .on('value', (snapshot) => {
+    //       let user = snapshot ? snapshot.val() : [];
+    //       let newUser = user ? user?.selectedValue : '';
+    //       setUserRoll(newUser);
+    //     });
   }, []);
 
   useEffect(() => {
-    setIsStudentLoading(true);
-    try {
-      database()
-        .ref('/addJobs/')
-        .on('value', (snapshot) => {
-          const mySnaap = snapshot.val();
-          const newSnaap = mySnaap ? Object.values(mySnaap) : [];
-          let allJobs = [];
-          newSnaap.forEach((tex, i) => {
-            const aa = Object.values(tex);
-            const newData = Object.values(aa);
-            newData?.forEach((job) => {
-              allJobs.push(job);
-            });
-          });
-          setMyJobsStudents(allJobs);
-          setIsStudentLoading(false);
-        });
-    } catch (err) {
-      console.log(err);
-      setIsStudentLoading(false);
-    }
+    // setIsStudentLoading(true);
+    // try {
+    //   database()
+    //     .ref('/addJobs/')
+    //     .on('value', (snapshot) => {
+    //       const mySnaap = snapshot.val();
+    //       const newSnaap = mySnaap ? Object.values(mySnaap) : [];
+    //       let allJobs = [];
+    //       newSnaap.forEach((tex, i) => {
+    //         const aa = Object.values(tex);
+    //         const newData = Object.values(aa);
+    //         newData?.forEach((job) => {
+    //           allJobs.push(job);
+    //         });
+    //       });
+    //       setMyJobsStudents(allJobs);
+    //       setIsStudentLoading(false);
+    //     });
+    // } catch (err) {
+    //   console.log(err);
+    //   setIsStudentLoading(false);
+    // }
   }, []);
 
   useEffect(() => {
     setIsLoading(true);
-    try {
-      const uid = firebase.auth().currentUser?.uid;
-      database()
-        .ref(`/addJobs/${uid}`)
-        .on('value', (snapshot) => {
-          let snapVal = snapshot.val();
-          let mySnaap = snapVal ? Object.values(snapshot.val()) : [];
-          let pushKeys = snapVal ? Object.keys(snapshot.val()) : [];
-          mySnaap = mySnaap.map((val, i) => ({ ...val, pushKey: pushKeys[i] }));
-          setMyJobs(mySnaap);
-          setIsLoading(false);
-        });
-      BackHandler.addEventListener('hardwareBackPress', disableBackButton);
-    } catch (err) {
-      console.log(err);
-      setIsLoading(false);
-    }
+    axios
+      .post(`${appSetting.serverBaseUrl}/job/get-all-jobs`)
+      .then((jobs) => {
+        console.log('All jobs found successfully ' + jobs.data.jobDetails);
+        setMyJobs(jobs.data.jobDetils?.filter((item) => item?.companyId === studentDet.userid));
+        setMyJobsStudents(jobs?.data?.jobDetails)
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.log('unbale to get all jobs ' + err);
+        setIsLoading(false);
+      }, []);
+    // try {
+    //   const uid = firebase.auth().currentUser?.uid;
+    //   database()
+    //     .ref(`/addJobs/${uid}`)
+    //     .on('value', (snapshot) => {
+    //       let snapVal = snapshot.val();
+    //       let mySnaap = snapVal ? Object.values(snapshot.val()) : [];
+    //       let pushKeys = snapVal ? Object.keys(snapshot.val()) : [];
+    //       mySnaap = mySnaap.map((val, i) => ({ ...val, pushKey: pushKeys[i] }));
+    //       setMyJobs(mySnaap);
+    //       setIsLoading(false);
+    //     });
+    //   BackHandler.addEventListener('hardwareBackPress', disableBackButton);
+    // } catch (err) {
+    //   console.log(err);
+    //   setIsLoading(false);
+    // }
   }, []);
 
+  // }
   const jobDetail = (index) => {
     navigation.navigate('JobsDetails', {
       myJobs: myJobs,
@@ -103,8 +122,8 @@ const JobsScreen = ({ navigation }) => {
     });
   };
 
-  if (!firebase?.auth().currentUser?.uid) {
-    navigation.navigate('LogIn');
+  if (!studentDet.userid) {
+    return navigation.navigate('LogIn');
   }
   return (
     <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
@@ -135,7 +154,7 @@ const JobsScreen = ({ navigation }) => {
                           Requirement : {applyJob.requirement}
                         </Text>
                         <Text numberOfLines={1} style={style.teXt}>
-                          Experience : {applyJob.experience}
+                          Experience : {applyJob.post}
                         </Text>
                         <Text numberOfLines={1} style={style.teXt}>
                           Designation : {applyJob.designation}

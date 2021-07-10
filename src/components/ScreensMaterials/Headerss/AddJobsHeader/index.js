@@ -1,15 +1,18 @@
 import React from 'react';
-import {Text, StyleSheet, View} from 'react-native';
-import {widthPercentageToDP as wp} from '../../../responsive/responsive';
+import { Text, StyleSheet, View } from 'react-native';
+import { widthPercentageToDP as wp } from '../../../responsive/responsive';
 import MenuIcon from '../../MenuIcon/index';
 
-const AddJobsHeader = ({navigation}) => {
+const AddJobsHeader = ({ navigation }) => {
   return (
     <View style={style.container}>
       <View style={style.txtContainer}>
         <Text style={style.mainTxt}>Welcome To Add Jobs Page</Text>
       </View>
-      <MenuIcon navigation={navigation} />
+      <View style={style.menuIcon}>
+
+        <MenuIcon navigation={navigation} />
+      </View>
     </View>
   );
 };
@@ -31,4 +34,9 @@ const style = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
+  menuIcon: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+  }
 });

@@ -1,17 +1,17 @@
-import React, {useEffect} from 'react';
-import {Text, View, TextInput} from 'react-native';
+import React, { useEffect } from 'react';
+import { Text, View, TextInput } from 'react-native';
 import style from '../../../MyDrawer/CompanyProfile/style';
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 
-const CompanyNameText = ({edit, myTxt, setAbcd, abcd}) => {
-  const currentText = useSelector((state) => state.com.CompanyData);
+const CompanyNameText = ({ edit, myTxt, setAbcd, abcd }) => {
+  const currentText = useSelector((state) => state.myLog.LoginData);
   return (
     <View style={style.company}>
       <Text style={style.companyChild}>Company Name :-</Text>
       <Text numberOfLines={1} style={style.companyText}>
         {edit ? (
           currentText ? (
-            currentText.abcd
+            currentText?.details?.name
           ) : (
             ''
           )
@@ -30,8 +30,8 @@ const CompanyNameText = ({edit, myTxt, setAbcd, abcd}) => {
   );
 };
 
-const CompanyDescriptionText = ({edit, myDcTxt, setEtc, etc}) => {
-  const currentText = useSelector((state) => state.com.CompanyData);
+const CompanyDescriptionText = ({ edit, myDcTxt, setEtc, etc }) => {
+  const currentText = useSelector((state) => state.myLog.LoginData);
   return (
     <View style={style.description}>
       <Text style={style.companyChild}>Company Description :-</Text>
@@ -39,7 +39,7 @@ const CompanyDescriptionText = ({edit, myDcTxt, setEtc, etc}) => {
       <Text numberOfLines={4} style={style.descriptionText}>
         {edit ? (
           currentText ? (
-            currentText.etc
+            currentText?.details?.description
           ) : (
             ''
           )
@@ -58,4 +58,4 @@ const CompanyDescriptionText = ({edit, myDcTxt, setEtc, etc}) => {
   );
 };
 
-export {CompanyNameText, CompanyDescriptionText};
+export { CompanyNameText, CompanyDescriptionText };

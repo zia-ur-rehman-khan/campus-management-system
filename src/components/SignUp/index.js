@@ -56,9 +56,9 @@ const SignUp = ({ navigation }) => {
         .then((res) => {
           console.log(res.data.user.email, 'data');
           if (res.data.status) {
-            savingUSerDetailsInLocalStorage(res.data.user);
             console.log('New user created succcessfully...');
             dispatch(userLogin({ email: res.data.user.email, password: res.data.user.password, userRole: res?.data?.user?.userRole, userid: res.data.user._id }));
+            savingUSerDetailsInLocalStorage(res.data.user);
             setFirstName('');
             setLastName('');
             setEmail('');

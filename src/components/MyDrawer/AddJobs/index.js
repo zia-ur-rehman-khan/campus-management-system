@@ -1,15 +1,18 @@
-import React, {useState, useEffect} from 'react';
-import {Text, View, TextInput} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Text, View, TextInput } from 'react-native';
 import style from './style';
 import AddJobsHeader from '../../ScreensMaterials/Headerss/AddJobsHeader/index';
 import AddJobsImag from '../../ScreensMaterials/AddJobsMaterial/AddJobsImag/index';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scrollview';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scrollview';
 import AddJobsButton from '../../ScreensMaterials/AddJobsMaterial/AddJobsButton/index';
 import AddJobsDropDown from '../../ScreensMaterials/AddJobsMaterial/AddJobsDropDown/index';
 import database from '@react-native-firebase/database';
-import {firebase} from '@react-native-firebase/auth';
+import { firebase } from '@react-native-firebase/auth';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
+import appSetting from '../../../../appSetting/appSetting';
 
-const AddJobs = ({navigation}) => {
+const AddJobs = ({ navigation }) => {
   const [jobTitle, setJobTitle] = useState('');
   const [salaryPackage, setSalaryPackage] = useState('');
   const [requirement, setRequirement] = useState('');
@@ -17,57 +20,67 @@ const AddJobs = ({navigation}) => {
   const [description, setDescription] = useState('');
   const [experience, setExperience] = useState('Beginner');
   const [showErr, setShowErr] = useState('');
-  const [myFirstName, setMyFirstName] = useState('');
-  const [myLastName, setMyLastName] = useState('');
+  const [companyName, setCompanyName] = useState('')
+  const [companyId, setCompanyId] = useState('')
+  // const [myFirstName, setMyFirstName] = useState('');
+  // const [myLastName, setMyLastName] = useState('');
+
+  let studentDet = useSelector((state) => state.myLog.LoginData);
 
   useEffect(() => {
-    const uid = firebase.auth().currentUser?.uid;
-    database()
-      .ref(`/NewUsers/${uid}`)
-      .on('value', (snapshot) => {
-        let mySnap = snapshot.val();
-        let firstName = mySnap.firstName;
-        let lastName = mySnap.lastName;
-        setMyFirstName(firstName);
-        setMyLastName(lastName);
-      });
+    setCompanyId(studentDet.userid)
+    setCompanyName(studentDet.name)
+    // const uid = firebase.auth().currentUser?.uid;
+    // database()
+    //   .ref(`/NewUsers/${uid}`)
+    //   .on('value', (snapshot) => {
+    //     let mySnap = snapshot.val();
+    //     let firstName = mySnap.firstName;
+    //     let lastName = mySnap.lastName;
+    //     setMyFirstName(firstName);
+    //     setMyLastName(lastName);
+    //   });
   }, []);
 
   const handleSubmit = () => {
-    try {
-      if (
-        jobTitle &&
-        salaryPackage &&
-        requirement &&
-        designation &&
-        description
-      ) {
-        const uid = firebase.auth().currentUser?.uid;
-        database().ref(`/addJobs/${uid}`).push({
-          jobTitle,
-          salaryPackage,
-          requirement,
-          experience,
-          designation,
-          description,
-          myFirstName,
-          myLastName,
-        });
-        setJobTitle('');
-        setSalaryPackage('');
-        setRequirement('');
-        setDesignation('');
-        setDescription('');
-        setExperience('');
-        navigation.navigate('Jobs');
-        alert('Posting Success... !');
-      } else {
-        setShowErr('All Fields Are Required');
-      }
-    } catch (err) {
-      console.log('error ', err?.message);
+
+    let jobDetails = {
+      companyName: companyName,
+      companyId: companyName,
+      jobtitle: jobTitle,
+      salaryPakage: salaryPackage,
+      requirement: requirement,
+      post: experience,
+      designation: designation,
+      description: description,
     }
-  };
+    if (
+      jobTitle &&
+      salaryPackage &&
+      requirement &&
+      designation &&
+      description
+    ) {
+      axios.post(`${appSetting.serverBaseUrl}/job/add-new-job`, jobDetails)
+        .then(createdJob => {
+          console.log(createdJob.data + "Job created successfully")
+          setJobTitle('');
+          setSalaryPackage('');
+          setRequirement('');
+          setDesignation('');
+          setDescription('');
+          setExperience('');
+          navigation.navigate('Jobs');
+          alert('Posting Success... !');
+        })
+        .catch(err => {
+          console.log('error ', err?.message);
+        })
+
+    } else {
+      setShowErr('All Fields Are Required');
+    }
+  }
 
   const handleChange = () => {
     setShowErr('');

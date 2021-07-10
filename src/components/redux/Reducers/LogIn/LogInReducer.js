@@ -9,11 +9,13 @@ const LogInReducer = (state = initialState, action) => {
     case USER_LOGIN:
       console.log(action.myLog, "myLog")
       return {
+        ...state,
         LoginData: action.myLog,
       };
     default:
       return state;
   }
+
 };
 
 export default LogInReducer;

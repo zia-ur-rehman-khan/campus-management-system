@@ -69,9 +69,17 @@ const SignIn = ({ navigation, route }) => {
           dispatch(
             userLogin({
               email: succes.data.user.email,
-              password: succes.data.user.password,
-              userRole: succes?.data?.user?.userRole,
-              userid: succes?.data?.user?._id,
+              userRole: succes.data.user.userRole,
+              userid: succes.data.user._id,
+              details: {
+                name: succes?.data?.user?.studentDetails?.studentName || succes?.data?.user?.companyDetails?.companyName,
+                dateOfBirth: succes?.data?.user?.studentDetails?.dateOfBirth,
+                qualification: succes?.data?.user?.studentDetails?.studentName,
+                description: succes?.data?.user?.companyDetails?.companyDescription
+              },
+
+
+
             }),
           );
         } else if (!succes.data.status) {
@@ -116,22 +124,30 @@ const SignIn = ({ navigation, route }) => {
       if (jsonValue != null) {
         let userdetail = JSON.parse(jsonValue)
         console.log(userdetail)
-        dispatch(
-          userLogin({
-            email: userdetail?.email,
-            password: userdetail?.password,
-            userRole: userdetail?.userRole,
-            userid: userdetail?._id,
-          }),
-        );
-        // axios.post(`${appSetting.serverBaseUrl}/users/get-user-by-id`, { _id: userdetail._id })
-        //   .then(user => {
-        //     console.log(user, "complete user details")
-        //   })
-        //   .catch(err => {
-        //     console.log(err, 'error in get user by id')
-        //   })
-        return navigation.navigate('DrawerNav');
+        axios.post(`${appSetting.serverBaseUrl}/users/get-user-by-id`, { _id: userdetail._id })
+          .then(user => {
+            dispatch(
+              userLogin({
+                email: user.data.user.email,
+                password: user.data.user.password,
+                userRole: user.data.user.userRole,
+                userid: user.data.user._id,
+                details: {
+                  name: user?.data?.user?.studentDetails?.studentName || user?.data?.user?.companyDetails?.companyName,
+                  dateOfBirth: user?.data?.user?.studentDetails?.dateOfBirth,
+                  qualification: user?.data?.user?.studentDetails?.studentName,
+                  description: user?.data?.user?.companyDetails?.companyDescription
+                },
+              }),
+            );
+            // console.log(user.data.user, "complete user details")
+            // console.log(user.data.user.email, "complete user details")
+            return navigation.navigate('DrawerNav');
+          })
+          .catch(err => {
+            console.log(err, 'error in get user by id')
+          })
+
       }
     } catch (e) {
       console.log('Unable to check user login or not ====> ' + e);

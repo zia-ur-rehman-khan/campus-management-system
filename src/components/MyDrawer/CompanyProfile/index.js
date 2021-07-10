@@ -22,9 +22,10 @@ import { companyProfile } from '../../redux/Actions/CompanyProfile/CompanyProfil
 import { firebase } from '@react-native-firebase/auth';
 import axios from 'axios';
 import appSetting from '../../../../appSetting/appSetting';
+import { userLogin } from '../../redux/Actions/LogIn/LogInAction';
 
 const CompanyProfileScreen = ({ navigation }) => {
-  const currentText = useSelector((state) => state.com.CompanyData);
+  const currentText = useSelector((state) => state.myLog.LoginData);
   const [isLoading, setIsLoading] = useState(false);
   const [myTxt, setMyTxt] = useState();
   const [myDcTxt, setMyDcTxt] = useState();
@@ -35,7 +36,7 @@ const CompanyProfileScreen = ({ navigation }) => {
 
   console.log(useSelector(state => state), "state")
 
-  let companyid = useSelector((state => state.myLog.LoginData))
+  let companyid = useSelector((state => state.myLog.LoginData.userid))
   console.log(companyid, "comapny iddd")
 
 
@@ -54,7 +55,6 @@ const CompanyProfileScreen = ({ navigation }) => {
     //   etc,
     // });
 
-
     let companyDetails = {
       _id: companyid,
       companyDetails: {
@@ -62,16 +62,23 @@ const CompanyProfileScreen = ({ navigation }) => {
         companyDescription: etc,
       }
     }
-
+    console.log('>>>>>>>>>>>>>' + abcd, etc)
     axios.post(`${appSetting.serverBaseUrl}/users/add-company-detailes`, companyDetails)
       .then(savedDetails => {
-
-        dispatch(companyProfile({ abcd, etc }));
+        dispatch(
+          userLogin({
+            ...currentText,
+            details: {
+              name: savedDetails.data.companyDetails.companyName,
+              description: savedDetails.data.companyDetails.companyDescription
+            }
+          }),
+        );
+        console.log('saved detailes', savedDetails)
+        // dispatch(companyProfile({ abcd, etc }));
         setEdit(true);
         setMyTxt(abcd);
         setMyDcTxt(etc);
-
-
       })
       .catch(err => {
         console.log(err);
@@ -85,22 +92,24 @@ const CompanyProfileScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    setIsLoading(true);
-    setAbcd(currentText ? currentText.abcd : '');
-    setEtc(currentText ? currentText.etc : '');
-    const uid = firebase.auth().currentUser?.uid;
-    database()
-      .ref(`/CompanyData/${uid}`)
-      .on('value', (snapshot) => {
-        let newAppliedJobs = snapshot.val()
-          ? Object.values(snapshot.val())
-          : [];
-        let [data] = newAppliedJobs;
-        dispatch(companyProfile(data));
-        setIsLoading(false);
-      });
+    // setIsLoading(true);
+    setMyTxt(currentText ? currentText?.details?.name : '');
+    setEtc(currentText ? currentText?.details?.description : '');
+    setAbcd(currentText ? currentText?.details?.name : '');
+    setMyDcTxt(currentText ? currentText?.details?.description : '');
+    //     setIsLoading(false);
+    // const uid = firebase.auth().currentUser?.uid;
+    // database()
+    //   .ref(`/CompanyData/${uid}`)
+    //   .on('value', (snapshot) => {
+    //     let newAppliedJobs = snapshot.val()
+    //       ? Object.values(snapshot.val())
+    //       : [];
+    //     let [data] = newAppliedJobs;
+    // dispatch(companyProfile(data));
+    //   });
     BackHandler.addEventListener('hardwareBackPress', disableBackButton);
-  }, []);
+  }, [currentText]);
 
   return (
     <KeyboardAwareScrollView>
