@@ -8,9 +8,10 @@ import AddJobsButton from '../../ScreensMaterials/AddJobsMaterial/AddJobsButton/
 import AddJobsDropDown from '../../ScreensMaterials/AddJobsMaterial/AddJobsDropDown/index';
 import database from '@react-native-firebase/database';
 import { firebase } from '@react-native-firebase/auth';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import appSetting from '../../../../appSetting/appSetting';
+import { allJobsAction } from '../../redux/Actions/ApplyJobs/ApplyJobsAction';
 
 const AddJobs = ({ navigation }) => {
   const [jobTitle, setJobTitle] = useState('');
@@ -25,11 +26,14 @@ const AddJobs = ({ navigation }) => {
   // const [myFirstName, setMyFirstName] = useState('');
   // const [myLastName, setMyLastName] = useState('');
 
+  const dispatch = useDispatch()
   let studentDet = useSelector((state) => state.myLog.LoginData);
+  let allJobs = useSelector((state) => state.job.allJobs);
 
   useEffect(() => {
+    console.log(studentDet)
     setCompanyId(studentDet.userid)
-    setCompanyName(studentDet.name)
+    setCompanyName(studentDet.details.name)
     // const uid = firebase.auth().currentUser?.uid;
     // database()
     //   .ref(`/NewUsers/${uid}`)
@@ -40,13 +44,13 @@ const AddJobs = ({ navigation }) => {
     //     setMyFirstName(firstName);
     //     setMyLastName(lastName);
     //   });
-  }, []);
+  }, [studentDet]);
 
   const handleSubmit = () => {
 
     let jobDetails = {
       companyName: companyName,
-      companyId: companyName,
+      companyId: companyId,
       jobtitle: jobTitle,
       salaryPakage: salaryPackage,
       requirement: requirement,
@@ -61,6 +65,7 @@ const AddJobs = ({ navigation }) => {
       designation &&
       description
     ) {
+      console.log(jobDetails)
       axios.post(`${appSetting.serverBaseUrl}/job/add-new-job`, jobDetails)
         .then(createdJob => {
           console.log(createdJob.data + "Job created successfully")
@@ -70,6 +75,8 @@ const AddJobs = ({ navigation }) => {
           setDesignation('');
           setDescription('');
           setExperience('');
+          dispatch(allJobsAction([...allJobs, createdJob?.data?.companyDetails])
+          )
           navigation.navigate('Jobs');
           alert('Posting Success... !');
         })

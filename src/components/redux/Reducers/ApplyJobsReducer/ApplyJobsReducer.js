@@ -1,7 +1,8 @@
-import {APPLY_JOB} from '../../Actions/ApplyJobs/ApplyJobsTypes';
+import { ALL_JOBS, APPLY_JOB } from '../../Actions/ApplyJobs/ApplyJobsTypes';
 
 const initialState = {
   applyJobs: [],
+  allJobs: []
 };
 
 const applyJobReducer = (state = initialState, action) => {
@@ -9,6 +10,10 @@ const applyJobReducer = (state = initialState, action) => {
     case APPLY_JOB:
       return {
         applyJobs: action.job,
+      };
+    case ALL_JOBS:
+      return {
+        allJobs: action.payload,
       };
     default:
       return state;

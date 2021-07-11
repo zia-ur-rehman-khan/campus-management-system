@@ -18,23 +18,25 @@ import {
 import { firebase } from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import DeleteButton from '../../ScreensMaterials/JobsDetailsMaterial/DetailsButton/DeleteButton';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import appSetting from '../../../../appSetting/appSetting';
 import axios from 'axios';
+import { allJobsAction } from '../../redux/Actions/ApplyJobs/ApplyJobsAction';
 
-const JobsScreen = ({ navigation }) => {
+const JobsScreen = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isStudentLoading, setIsStudentLoading] = useState(false);
   const [myJobs, setMyJobs] = useState([]);
   const [myJobsStudents, setMyJobsStudents] = useState([]);
   const [userRoll, setUserRoll] = useState();
-
+  const dispatch = useDispatch()
   const disableBackButton = () => {
     BackHandler.exitApp();
     return true;
   };
 
   let studentDet = useSelector((state) => state.myLog.LoginData);
+  let allJobs = useSelector((state) => state.job.allJobs);
 
   useEffect(() => {
     setUserRoll(studentDet.userRole)
@@ -79,15 +81,16 @@ const JobsScreen = ({ navigation }) => {
     axios
       .post(`${appSetting.serverBaseUrl}/job/get-all-jobs`)
       .then((jobs) => {
-        console.log('All jobs found successfully ' + jobs.data.jobDetails);
-        setMyJobs(jobs.data.jobDetils?.filter((item) => item?.companyId === studentDet.userid));
+        console.log('All jobs found successfully ' + JSON.stringify(jobs.data.jobDetails));
+        dispatch(allJobsAction(jobs.data.jobDetails))
+        setMyJobs(jobs.data.jobDetils);
         setMyJobsStudents(jobs?.data?.jobDetails)
         setIsLoading(false);
       })
       .catch((err) => {
         console.log('unbale to get all jobs ' + err);
         setIsLoading(false);
-      }, []);
+      }, [route?.params?.refreshData]);
     // try {
     //   const uid = firebase.auth().currentUser?.uid;
     //   database()
@@ -110,14 +113,15 @@ const JobsScreen = ({ navigation }) => {
   // }
   const jobDetail = (index) => {
     navigation.navigate('JobsDetails', {
-      myJobs: myJobs,
+      // myJobs: myJobs,
+      myJobs: allJobs?.filter((item) => item?.companyId === studentDet.userid),
       index: index,
     });
   };
 
   const jobsDetails = (index) => {
     navigation.navigate('JobsDetails', {
-      myJobsStudents: myJobsStudents,
+      myJobsStudents: allJobs,
       index: index,
     });
   };
@@ -125,6 +129,8 @@ const JobsScreen = ({ navigation }) => {
   if (!studentDet.userid) {
     return navigation.navigate('LogIn');
   }
+
+  console.log("alljobs", allJobs)
   return (
     <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
       <View style={style.container}>
@@ -138,17 +144,66 @@ const JobsScreen = ({ navigation }) => {
                   <ActivityIndicator size={40} color="green" />
                 </View>
               ) : (
-                myJobs.map((applyJob, index) => {
+                allJobs?.filter((item) => item?.companyId === studentDet.userid)
+                  ?.map((applyJob, index) => {
+                    return (
+                      <>
+                        <TouchableOpacity
+                          style={style.touchAbleContent}
+                          onPress={() => jobDetail(index)}>
+                          <Text numberOfLines={1} style={style.teXt}>
+                            Job Title : {applyJob.jobtitle}
+                          </Text>
+                          <Text numberOfLines={1} style={style.teXt}>
+                            Salary Package : {applyJob.salaryPakage}
+                          </Text>
+                          <Text numberOfLines={1} style={style.teXt}>
+                            Requirement : {applyJob.requirement}
+                          </Text>
+                          <Text numberOfLines={1} style={style.teXt}>
+                            Experience : {applyJob.post}
+                          </Text>
+                          <Text numberOfLines={1} style={style.teXt}>
+                            Designation : {applyJob.designation}
+                          </Text>
+                          <Text numberOfLines={1} style={style.teXt}>
+                            Description : {applyJob.description}
+                          </Text>
+                        </TouchableOpacity>
+                        {userRoll === 'Company' ? (
+                          <DeleteButton applyJob={applyJob} />
+                        ) : (
+                          <></>
+                        )}
+                      </>
+                    );
+                  })
+              )
+            ) : (
+              []
+            )}
+
+            {userRoll === 'Student' ? (
+              isStudentLoading ? (
+                <View style={style.loader}>
+                  <ActivityIndicator size={40} color="green" />
+                </View>
+              ) : (
+                allJobs.map((applyJob, index) => {
                   return (
-                    <>
+                    <View key={index}>
                       <TouchableOpacity
+                        activeOpacity={0.8}
                         style={style.touchAbleContent}
-                        onPress={() => jobDetail(index)}>
-                        <Text numberOfLines={1} style={style.teXt}>
-                          Job Title : {applyJob.jobTitle}
+                        onPress={() => jobsDetails(index)}>
+                        <Text
+                          index={index}
+                          numberOfLines={1}
+                          style={style.teXt}>
+                          Job Title : {applyJob.jobtitle}
                         </Text>
                         <Text numberOfLines={1} style={style.teXt}>
-                          Salary Package : {applyJob.salaryPackage}
+                          Salary Package : {applyJob.salaryPakage}
                         </Text>
                         <Text numberOfLines={1} style={style.teXt}>
                           Requirement : {applyJob.requirement}
@@ -163,60 +218,12 @@ const JobsScreen = ({ navigation }) => {
                           Description : {applyJob.description}
                         </Text>
                       </TouchableOpacity>
-                      {userRoll === 'Company' ? (
-                        <DeleteButton applyJob={applyJob} />
-                      ) : (
-                        <></>
-                      )}
-                    </>
-                  );
-                })
-              )
-            ) : (
-              []
-            )}
-
-            {userRoll === 'Student' ? (
-              isStudentLoading ? (
-                <View style={style.loader}>
-                  <ActivityIndicator size={40} color="green" />
-                </View>
-              ) : (
-                myJobsStudents.map((applyJob, index) => {
-                  return (
-                    <>
-                      <TouchableOpacity
-                        activeOpacity={0.8}
-                        style={style.touchAbleContent}
-                        onPress={() => jobsDetails(index)}>
-                        <Text
-                          index={index}
-                          numberOfLines={1}
-                          style={style.teXt}>
-                          Job Title : {applyJob.jobTitle}
-                        </Text>
-                        <Text numberOfLines={1} style={style.teXt}>
-                          Salary Package : {applyJob.salaryPackage}
-                        </Text>
-                        <Text numberOfLines={1} style={style.teXt}>
-                          Requirement : {applyJob.requirement}
-                        </Text>
-                        <Text numberOfLines={1} style={style.teXt}>
-                          Experience : {applyJob.experience}
-                        </Text>
-                        <Text numberOfLines={1} style={style.teXt}>
-                          Designation : {applyJob.designation}
-                        </Text>
-                        <Text numberOfLines={1} style={style.teXt}>
-                          Description : {applyJob.description}
-                        </Text>
-                      </TouchableOpacity>
                       <View style={style.posterName}>
                         <Text style={style.poster}>
-                          Posted By {applyJob.myFirstName} {applyJob.myLastName}
+                          Posted By {applyJob.companyName}
                         </Text>
                       </View>
-                    </>
+                    </View>
                   );
                 })
               )
